@@ -1,4 +1,4 @@
-package sag.model.maze.simulation;
+package sag.model.simulation;
 
 import sag.model.maze.Maze;
 import sag.model.maze.Point;

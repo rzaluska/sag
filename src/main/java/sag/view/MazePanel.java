@@ -2,7 +2,7 @@ package sag.view;
 
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
-import sag.model.maze.simulation.Simulation;
+import sag.model.simulation.Simulation;
 
 import javax.swing.*;
 import java.awt.*;

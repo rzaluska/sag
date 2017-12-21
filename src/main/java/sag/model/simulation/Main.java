@@ -1,4 +1,4 @@
-package sag.model.maze.simulation;
+package sag.model.simulation;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;

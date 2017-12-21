@@ -2,8 +2,8 @@ package sag.view;
 
 import sag.model.maze.Maze;
 import sag.model.maze.generators.RecursiveBacktracking;
-import sag.model.maze.simulation.AkkaAgentsSimulation;
-import sag.model.maze.simulation.Simulation;
+import sag.model.simulation.AkkaAgentsSimulation;
+import sag.model.simulation.Simulation;
 
 import javax.swing.*;
 import java.awt.*;

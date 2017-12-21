@@ -1,16 +1,14 @@
-package sag.model.maze.simulation;
+package sag.model.simulation;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
-import sag.model.maze.simulation.messages.MakeDecision;
-import sag.model.maze.simulation.messages.MakeMove;
+import sag.model.simulation.messages.MakeDecision;
+import sag.model.simulation.messages.MakeMove;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 public class AkkaAgentsSimulation implements Simulation {
     private ActorSystem actorSystem;

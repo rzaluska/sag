@@ -1,11 +1,11 @@
-package sag.model.maze.simulation;
+package sag.model.simulation;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
-import sag.model.maze.simulation.messages.MakeDecision;
-import sag.model.maze.simulation.messages.MakeMove;
+import sag.model.simulation.messages.MakeDecision;
+import sag.model.simulation.messages.MakeMove;
 
 import java.util.*;
 
