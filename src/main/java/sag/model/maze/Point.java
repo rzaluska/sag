@@ -10,9 +10,15 @@ public class Point {
         this.x = x;
         this.y = y;
     }
+
     public Point() {
         this.x = 0;
         this.y = 0;
+    }
+
+    public Point(Point point) {
+        this.x = point.x;
+        this.y = point.y;
     }
 
     public int getX() {
@@ -46,5 +52,12 @@ public class Point {
         Point point = (Point) o;
         return x == point.x &&
                 y == point.y;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = x;
+        result = 31 * result + y;
+        return result;
     }
 }

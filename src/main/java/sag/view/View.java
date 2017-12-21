@@ -28,7 +28,7 @@ public class View {
                     mazePanel.validate();
                     mazePanel.repaint();
                 }
-            }, 0, 10);
+            }, 0, 100);
         }
     }
 
@@ -43,7 +43,7 @@ public class View {
         RecursiveBacktracking recursiveBacktracking = new RecursiveBacktracking();
         Maze maze = recursiveBacktracking.generate(100, 100);
         this.simulation = new AkkaAgentsSimulation();
-        this.simulation.init(10, maze);
+        this.simulation.init(100, maze);
         this.mazePanel = new MazePanel(simulation, 10);
         JScrollPane jScrollPane = new JScrollPane(this.mazePanel);
         jScrollPane.setSize(new Dimension(100, 100));

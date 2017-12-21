@@ -7,15 +7,14 @@ import sag.model.maze.Point;
 import sag.model.maze.simulation.messages.MakeDecision;
 import sag.model.maze.simulation.messages.MakeMove;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class MazeAgent extends AbstractActor {
     private Maze maze;
     private Point nextStep;
-    private List<Point> previousPoints;
+    private Stack<Point> previousPoints;
+    private Map<Point, List<Maze.WallDirection>> previousTurns;
+    private int lastPointOnList;
 
     static public Props props(Point startPoint, Maze maze) {
         return Props.create(MazeAgent.class, () -> new MazeAgent(startPoint, maze));
@@ -27,7 +26,9 @@ public class MazeAgent extends AbstractActor {
     private MazeAgent(Point startPoint, Maze maze) {
         this.currentPosition = startPoint;
         this.maze = maze;
-        this.previousPoints = new LinkedList<>();
+        this.previousPoints = new Stack<>();
+        this.previousTurns = new HashMap<>();
+        previousPoints.push(this.currentPosition);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class MazeAgent extends AbstractActor {
     }
 
     private void makeMove() {
-        this.previousPoints.add(this.currentPosition);
+        this.previousPoints.push(new Point(this.currentPosition));
         this.currentPosition.setX(this.nextStep.getX());
         this.currentPosition.setY(this.nextStep.getY());
     }
@@ -53,14 +54,38 @@ public class MazeAgent extends AbstractActor {
 
         Collections.shuffle(Arrays.asList(directions));
 
-        for (int directionIndex = 0; directionIndex < 4; directionIndex++) {
-            if (moveValid(directions[directionIndex])) {
-                this.nextStep = getNew(directions[directionIndex]);
+
+        while (true) {
+            for (int directionIndex = 0; directionIndex < 4; directionIndex++) {
+                if (moveValid(directions[directionIndex])) {
+                    this.nextStep = getNew(directions[directionIndex]);
+                    if (this.previousTurns.containsKey(this.currentPosition)) {
+                        List <Maze.WallDirection> wallDirections = this.previousTurns.get(this.currentPosition);
+                        wallDirections.add(directions[directionIndex]);
+                    }
+                    else {
+                        List <Maze.WallDirection> wallDirections = new LinkedList<>();
+                        wallDirections.add(directions[directionIndex]);
+                        this.previousTurns.put(this.currentPosition, wallDirections);
+                    }
+                    return;
+                }
             }
+            if (this.previousPoints.empty()) {
+                this.previousTurns.clear();
+                return;
+            }
+            this.nextStep = this.previousPoints.pop();
         }
     }
 
     private boolean moveValid(Maze.WallDirection direction) {
+        if (this.previousTurns.containsKey(this.currentPosition)) {
+            List <Maze.WallDirection> wallDirections = this.previousTurns.get(this.currentPosition);
+            if (wallDirections.contains(direction)) {
+                return false;
+            }
+        }
         Point newPoint = getNew(direction);
         return !this.previousPoints.contains(newPoint) && !((newPoint.getX() < 0) || (newPoint.getX() > this.maze.getWidth() - 1) || (newPoint.getY() < 0) || (newPoint.getY() > this.maze.getHeight() - 1)) && !this.maze.isWallAt(this.currentPosition, direction);
     }
