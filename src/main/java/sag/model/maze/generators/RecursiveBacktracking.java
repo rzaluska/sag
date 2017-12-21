@@ -16,7 +16,7 @@ import static sag.model.maze.Maze.*;
 import static sag.model.maze.Maze.WallDirection.*;
 
 public class RecursiveBacktracking implements MazeGenerator {
-    private Point getNew(Point point, WallDirection direction) {
+    public Point getNew(Point point, WallDirection direction) {
         int x = point.getX();
         int y = point.getY();
         if (direction == WallDirection.E) {

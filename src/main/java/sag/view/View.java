@@ -2,30 +2,55 @@ package sag.view;
 
 import sag.model.maze.Maze;
 import sag.model.maze.generators.RecursiveBacktracking;
+import sag.model.maze.simulation.AkkaAgentsSimulation;
+import sag.model.maze.simulation.Simulation;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.TimerTask;
 
 public class View {
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGUI();
-            }
-        });
+    Simulation simulation;
+    private MazePanel mazePanel;
+
+    public Simulation getSimulation() {
+        return simulation;
     }
 
-    private static void createAndShowGUI() {
+    class TimerSim {
+        public TimerSim(final Simulation simulation) {
+            java.util.Timer t = new java.util.Timer();
+            t.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    simulation.step();
+                    mazePanel.invalidate();
+                    mazePanel.validate();
+                    mazePanel.repaint();
+                }
+            }, 0, 10);
+        }
+    }
+
+    public static void main(String[] args) {
+        View view = new View();
+        view.createAndShowGUI();
+    }
+
+    private void createAndShowGUI() {
         JFrame f = new JFrame("Akka Maze");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         RecursiveBacktracking recursiveBacktracking = new RecursiveBacktracking();
         Maze maze = recursiveBacktracking.generate(100, 100);
-        MazePanel mazePanel = new MazePanel(maze, 10);
-        JScrollPane jScrollPane = new JScrollPane(mazePanel);
-        jScrollPane.setMaximumSize(new Dimension(100, 100));
+        this.simulation = new AkkaAgentsSimulation();
+        this.simulation.init(10, maze);
+        this.mazePanel = new MazePanel(simulation, 10);
+        JScrollPane jScrollPane = new JScrollPane(this.mazePanel);
+        jScrollPane.setSize(new Dimension(100, 100));
         f.add(jScrollPane);
-        f.pack();
+        f.setSize(100, 100);
         f.setVisible(true);
+        new TimerSim(this.getSimulation());
     }
 }
 

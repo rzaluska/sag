@@ -2,32 +2,35 @@ package sag.view;
 
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
+import sag.model.maze.simulation.Simulation;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class MazePanel extends JPanel {
     private final int cellSize;
-    private Maze maze;
+    Simulation simulation;
 
-    MazePanel(Maze maze, int cellSize) {
-        this.maze = maze;
+    MazePanel(Simulation simulation, int cellSize) {
+        this.simulation = simulation;
         this.cellSize = cellSize;
     }
 
     public Dimension getPreferredSize() {
-        return new Dimension(this.cellSize * this.maze.getWidth(), this.cellSize * this.maze.getHeight());
+        Maze maze = this.simulation.getMaze();
+        return new Dimension(this.cellSize * maze.getWidth(), this.cellSize * maze.getHeight());
     }
 
     public void paintComponent(Graphics g) {
+        Maze maze = this.simulation.getMaze();
         super.paintComponent(g);
 
         // Draw Text
         g.setColor(Color.WHITE);
-        g.fillRect(0, 0, this.maze.getWidth() * this.cellSize, this.maze.getHeight() * this.cellSize);
+        g.fillRect(0, 0, maze.getWidth() * this.cellSize, maze.getHeight() * this.cellSize);
         g.setColor(Color.BLACK);
-        for (int i = 0; i < this.maze.getHeight(); i++) {
-            for (int j = 0; j < this.maze.getWidth(); j++) {
+        for (int i = 0; i < maze.getHeight(); i++) {
+            for (int j = 0; j < maze.getWidth(); j++) {
                 int cellx = j * cellSize;
                 int celly = i * cellSize;
                 if (maze.isWallAt(new Point(j, i), Maze.WallDirection.S)) {
@@ -39,7 +42,15 @@ public class MazePanel extends JPanel {
 
             }
         }
+        g.setColor(Color.GREEN);
+        for (Point point : this.simulation.getAgentsPositions()) {
+            int cellx = point.getX() * cellSize;
+            int celly = point.getY() * cellSize;
+            g.fillRect(cellx + 2, celly + 2, cellSize - 2, cellSize - 2);
+        }
+
+
         g.setColor(Color.BLUE);
-        g.fillRect(this.maze.getFinish().getX() * cellSize + 2, this.maze.getFinish().getY() * cellSize + 2, cellSize - 4, cellSize - 4);
+        g.fillRect(maze.getFinish().getX() * cellSize + 2, maze.getFinish().getY() * cellSize + 2, cellSize - 4, cellSize - 4);
     }
 }
