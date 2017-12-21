@@ -2,45 +2,39 @@ package sag.model.maze.structures;
 
 
 import sag.model.maze.Maze;
+import sag.model.maze.Point;
 
 public class ArrayMaze implements MazeStructure {
-    private final int finishY;
-    private final int finishX;
     private int directions[][];
     private int width;
     private int height;
+    private Point finish;
 
-    public ArrayMaze(int width, int height, int finishX, int finishY) {
+    public ArrayMaze(int width, int height, Point finish) {
         this.directions = new int[width][height];
         this.width = width;
         this.height = height;
-        this.finishX = finishX;
-        this.finishY = finishY;
+        this.finish = finish;
     }
 
     @Override
-    public void removeWall(int x, int y, WallDirection direction) {
-        this.directions[x][y] |= direction.getDirection();
+    public void removeWall(Point point, WallDirection direction) {
+        this.directions[point.getX()][point.getY()] |= direction.getDirection();
     }
 
     @Override
-    public boolean notVisited(int x, int y) {
-        return this.directions[x][y] == 0;
+    public boolean notVisited(Point point) {
+        return this.directions[point.getX()][point.getY()] == 0;
     }
 
     @Override
-    public boolean isWallAt(int x, int y, WallDirection direction) {
-        return (this.directions[x][y] & direction.getDirection()) == 0;
+    public boolean isWallAt(Point point, WallDirection direction) {
+        return (this.directions[point.getX()][point.getY()] & direction.getDirection()) == 0;
     }
 
     @Override
-    public int getFinishX() {
-        return this.finishX;
-    }
-
-    @Override
-    public int getFinishY() {
-        return this.finishY;
+    public Point getFinish() {
+        return this.finish;
     }
 
     @Override

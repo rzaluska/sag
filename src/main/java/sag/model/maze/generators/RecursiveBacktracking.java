@@ -3,6 +3,7 @@ package sag.model.maze.generators;
 import javafx.util.Pair;
 import sag.model.maze.Maze;
 import sag.model.maze.MazeGenerator;
+import sag.model.maze.Point;
 import sag.model.maze.structures.ArrayMaze;
 import sag.model.maze.structures.MazeStructure;
 
@@ -15,38 +16,26 @@ import static sag.model.maze.Maze.*;
 import static sag.model.maze.Maze.WallDirection.*;
 
 public class RecursiveBacktracking implements MazeGenerator {
-    private class Point {
-        int x, y;
-
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    private int getNewX(int x, WallDirection direction) {
+    private Point getNew(Point point, WallDirection direction) {
+        int x = point.getX();
+        int y = point.getY();
         if (direction == WallDirection.E) {
             x++;
         }
         if (direction == WallDirection.W) {
             x--;
         }
-        return x;
-    }
-
-    private int getNewY(int y, WallDirection direction) {
         if (direction == WallDirection.N) {
             y--;
         }
         if (direction == WallDirection.S) {
             y++;
         }
-        return y;
+        return new Point(x, y);
     }
 
-    private void carveFrom(MazeStructure structure, int x, int y) {
-        int currx = x;
-        int curry = y;
+    private void carveFrom(MazeStructure structure, Point point) {
+        Point curr = point;
 
         WallDirection directions[] = {N, S, W, E};
 
@@ -59,22 +48,18 @@ public class RecursiveBacktracking implements MazeGenerator {
             Collections.shuffle(Arrays.asList(directions));
             boolean found = false;
             for (int directionIndex = 0; directionIndex < 4; directionIndex++) {
-                if (moveValid(structure, directions[directionIndex], currx, curry)) {
-                    int newx = getNewX(currx, directions[directionIndex]);
-                    int newy = getNewY(curry, directions[directionIndex]);
-                    structure.removeWall(currx, curry, directions[directionIndex]);
-                    structure.removeWall(newx, newy, opposite(directions[directionIndex]));
-                    stack.push(new Point(currx, curry));
-                    currx = newx;
-                    curry = newy;
+                if (moveValid(structure, directions[directionIndex], curr)) {
+                    Point newPoint = getNew(curr, directions[directionIndex]);
+                    structure.removeWall(curr, directions[directionIndex]);
+                    structure.removeWall(newPoint, opposite(directions[directionIndex]));
+                    stack.push(curr);
+                    curr = newPoint;
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                Point p = stack.pop();
-                currx = p.x;
-                curry = p.y;
+                curr = stack.pop();
             }
         } while (!stack.empty());
     }
@@ -94,16 +79,15 @@ public class RecursiveBacktracking implements MazeGenerator {
         }
     }
 
-    private boolean moveValid(MazeStructure structure, WallDirection direction, int x, int y) {
-        int newx = getNewX(x, direction);
-        int newy = getNewY(y, direction);
-        return !((newx < 0) || (newx > structure.getWidth() - 1) || (newy < 0) || (newy > structure.getHeight() - 1)) && structure.notVisited(newx, newy);
+    private boolean moveValid(MazeStructure structure, WallDirection direction, Point point) {
+        Point newPoint = getNew(point, direction);
+        return !((newPoint.getX() < 0) || (newPoint.getX() > structure.getWidth() - 1) || (newPoint.getY() < 0) || (newPoint.getY() > structure.getHeight() - 1)) && structure.notVisited(newPoint);
     }
 
     @Override
     public Maze generate(int width, int height) {
-        MazeStructure mazeStructure = new ArrayMaze(width, height, 0, 0);
-        carveFrom(mazeStructure, 0, 0);
+        MazeStructure mazeStructure = new ArrayMaze(width, height, new Point(0, 0));
+        carveFrom(mazeStructure, new Point(0, 0));
         return mazeStructure;
     }
 }

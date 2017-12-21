@@ -13,9 +13,8 @@ public interface Maze {
 
     }
 
-    public boolean isWallAt(int x, int y, WallDirection direction);
-    public int getFinishX();
-    public int getFinishY();
+    public boolean isWallAt(Point point, WallDirection direction);
+    public Point getFinish();
 
     public int getWidth();
 
