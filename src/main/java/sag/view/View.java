@@ -22,13 +22,13 @@ public class View {
             java.util.Timer t = new java.util.Timer();
             t.schedule(new TimerTask() {
                 @Override
-                public void run() {
+                public synchronized void run() {
                     simulation.step();
                     mazePanel.invalidate();
                     mazePanel.validate();
                     mazePanel.repaint();
                 }
-            }, 0, 100);
+            }, 0, 10);
         }
     }
 

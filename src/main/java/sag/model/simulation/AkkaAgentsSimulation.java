@@ -2,19 +2,26 @@ package sag.model.simulation;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
+import sag.model.simulation.agents.MazeAgent;
 import sag.model.simulation.messages.MakeDecision;
 import sag.model.simulation.messages.MakeMove;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AkkaAgentsSimulation implements Simulation {
     private ActorSystem actorSystem;
     private List<ActorRef> actors;
     private List<Point> agentsPositions;
     private Maze maze;
+    private int numberOfAgents;
 
     public AkkaAgentsSimulation() {
         this.actors = new LinkedList<>();
@@ -25,6 +32,7 @@ public class AkkaAgentsSimulation implements Simulation {
     public void init(int numberOfAgents, Maze maze) {
         this.maze = maze;
         this.actorSystem = ActorSystem.create("sag");
+        this.numberOfAgents = numberOfAgents;
 
         for (int i = 0; i < numberOfAgents; i++) {
             Point position = new Point(0, 0);
@@ -42,11 +50,18 @@ public class AkkaAgentsSimulation implements Simulation {
 
     @Override
     public void step() {
-        for (ActorRef actor : this.actors) {
-            actor.tell(new MakeDecision(), ActorRef.noSender());
-        }
-        for (ActorRef actor : this.actors) {
-            actor.tell(new MakeMove(), ActorRef.noSender());
+        try {
+            final Timeout timeout = new Timeout(24, TimeUnit.HOURS);
+            for (ActorRef actor : actors) {
+                Future<Object> future = Patterns.ask(actor, new MakeDecision(), timeout);
+                Await.result(future, timeout.duration());
+            }
+            for (ActorRef actor : actors) {
+                Future<Object> future = Patterns.ask(actor, new MakeMove(), timeout);
+                Await.result(future, timeout.duration());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

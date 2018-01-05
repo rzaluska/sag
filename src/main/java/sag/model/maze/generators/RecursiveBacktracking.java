@@ -9,6 +9,7 @@ import sag.model.maze.structures.MazeStructure;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -88,6 +89,19 @@ public class RecursiveBacktracking implements MazeGenerator {
     public Maze generate(int width, int height) {
         MazeStructure mazeStructure = new ArrayMaze(width, height, new Point(0, 0));
         carveFrom(mazeStructure, new Point(0, 0));
+        addLoops(mazeStructure);
         return mazeStructure;
+    }
+
+    private void addLoops(MazeStructure mazeStructure) {
+        Random generator = new Random();
+        WallDirection directions[] = {N, S, W, E};
+        int numberOfFields = (int) (0.4 * mazeStructure.getHeight() * mazeStructure.getWidth());
+        for (int i = 0; i < numberOfFields; i++) {
+            int x = generator.nextInt(mazeStructure.getWidth());
+            int y = generator.nextInt(mazeStructure.getHeight());
+            Collections.shuffle(Arrays.asList(directions));
+            mazeStructure.removeWall(new Point(x,y), directions[0]);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package sag.model.simulation;
+package sag.model.simulation.agents;
 
 import akka.actor.AbstractActor;
 import akka.actor.Props;
@@ -36,9 +36,11 @@ public class MazeAgent extends AbstractActor {
         return receiveBuilder()
                 .match(MakeDecision.class, md -> {
                     makeDecision();
+                    getSender().tell(new Object(), getSender());
                 })
                 .match(MakeMove.class, mm -> {
                     makeMove();
+                    getSender().tell(new Object(), getSender());
                 })
                 .build();
     }
