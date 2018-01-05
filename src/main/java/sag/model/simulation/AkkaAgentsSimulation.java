@@ -37,7 +37,7 @@ public class AkkaAgentsSimulation implements Simulation {
         for (int i = 0; i < numberOfAgents; i++) {
             Point position = new Point(0, 0);
             this.agentsPositions.add(position);
-            ActorRef actor = this.actorSystem.actorOf(MazeAgent.props(position, maze), Integer.toString(i));
+            ActorRef actor = this.actorSystem.actorOf(MazeAgent.props(position, maze, this.actors), Integer.toString(i));
             this.actors.add(actor);
         }
     }
@@ -52,12 +52,20 @@ public class AkkaAgentsSimulation implements Simulation {
     public void step() {
         try {
             final Timeout timeout = new Timeout(24, TimeUnit.HOURS);
+            List<Future<Object>> futures = new LinkedList<>();
             for (ActorRef actor : actors) {
                 Future<Object> future = Patterns.ask(actor, new MakeDecision(), timeout);
+                futures.add(future);
+            }
+            for (Future<Object> future : futures) {
                 Await.result(future, timeout.duration());
             }
+            futures.clear();
             for (ActorRef actor : actors) {
                 Future<Object> future = Patterns.ask(actor, new MakeMove(), timeout);
+                futures.add(future);
+            }
+            for (Future<Object> future : futures) {
                 Await.result(future, timeout.duration());
             }
         } catch (Exception e) {
