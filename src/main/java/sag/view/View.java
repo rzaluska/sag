@@ -1,13 +1,11 @@
 package sag.view;
 
-import apple.laf.JRSUIConstants;
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
 import sag.model.maze.generators.EmptyMazeGenerator;
 import sag.model.maze.generators.RecursiveBacktracking;
 import sag.model.simulation.AkkaAgentsSimulation;
 import sag.model.simulation.Simulation;
-import sun.tools.jstat.Alignment;
 
 import javax.swing.*;
 import java.awt.*;

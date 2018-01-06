@@ -1,6 +1,5 @@
 package sag.model.maze.generators;
 
-import javafx.util.Pair;
 import sag.model.maze.Maze;
 import sag.model.maze.MazeGenerator;
 import sag.model.maze.Point;
@@ -11,9 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Stack;
-import java.util.concurrent.ThreadLocalRandom;
 
-import static sag.model.maze.Maze.*;
+import static sag.model.maze.Maze.WallDirection;
 import static sag.model.maze.Maze.WallDirection.*;
 
 public class RecursiveBacktracking implements MazeGenerator {

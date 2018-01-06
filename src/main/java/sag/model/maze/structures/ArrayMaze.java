@@ -1,7 +1,6 @@
 package sag.model.maze.structures;
 
 
-import sag.model.maze.Maze;
 import sag.model.maze.Point;
 
 public class ArrayMaze implements MazeStructure {

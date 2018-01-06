@@ -3,8 +3,6 @@ package sag.model.maze.generators;
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class RecursiveBacktrackingTest {
 
     @org.junit.jupiter.api.Test
