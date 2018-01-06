@@ -3,18 +3,11 @@ package sag.model.simulation.agents;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
 import sag.model.maze.Maze;
 import sag.model.maze.Point;
 import sag.model.simulation.messages.*;
-import scala.Array;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 public class MazeAgent extends AbstractActor {
     private enum State {
@@ -31,7 +24,7 @@ public class MazeAgent extends AbstractActor {
     private Stack<Point> previousPoints;
     private Map<Point, Map<Maze.WallDirection, Integer>> previousTurns;
     private int lastPointOnList;
-    private Map<Maze.WallDirection, Integer> directionMap;
+    private Map<Maze.WallDirection, Integer> otherAgentsDirections;
     private ActorRef superSender;
     private Stack<Point> bestPath;
     private Stack<Point> pathToBest;
@@ -50,7 +43,7 @@ public class MazeAgent extends AbstractActor {
         this.previousPoints = new Stack<>();
         this.previousTurns = new HashMap<>();
         previousPoints.push(this.currentPosition);
-        this.directionMap = new HashMap<>();
+        this.otherAgentsDirections = new HashMap<>();
         this.couter = 0;
         this.state = State.IN_MAZE;
     }
@@ -94,28 +87,63 @@ public class MazeAgent extends AbstractActor {
             }
             myPathToBestPath.add(p);
         }
+        Collections.reverse(myPathToBestPath);
 
-        Stack<Point> tmp = new Stack<>();
+        List<Point> tmp = new ArrayList<>();
         while (!wholeBestPath.empty()) {
             Point wbp = wholeBestPath.pop();
             if (wbp.equals(last)) {
                 break;
             }
-            tmp.push(wbp);
+            tmp.add(wbp);
         }
-        Collections.reverse(myPathToBestPath);
 
-        for (Point p : myPathToBestPath) {
-            tmp.push(p);
-        }
-        this.bestPath = tmp;
+        tmp.addAll(myPathToBestPath);
+        this.bestPath = optimizePath(tmp);
+        //c=A c=B C D A A A A x=B
         this.state = State.ON_BEST_PATH;
+    }
+
+    public static Stack<Point> optimizePath(List<Point> list) {
+        Stack<Point> n = new Stack<>();
+
+        for (int i = list.size() - 1; i >= 0; i--) {
+            Point curr = list.get(i);
+            for (int j = 0; j < i; j++) {
+                if (curr.equals(list.get(j))) {
+                    List<Point> nl = new ArrayList<>();
+                    nl = list.subList(0, j);
+                    nl.addAll(list.subList(i, list.size()));
+                    list = nl;
+                    i -= (i - j);
+                    break;
+                }
+            }
+        }
+        n.addAll(list);
+        return n;
+    }
+
+    public static void main(String[] args) {
+        List<Point> l = new ArrayList<>();
+        l.add(new Point(0, 0));
+        l.add(new Point(1, 1));
+        l.add(new Point(2, 2));
+        l.add(new Point(1, 1));
+        l.add(new Point(0, 0));
+        l.add(new Point(5, 5));
+        l.add(new Point(3, 3));
+        l.add(new Point(5, 5));
+        Stack<Point> s = optimizePath(l);
+        for (Point p : s) {
+            System.out.println(p);
+        }
     }
 
     private void updateDirections(ReturnDecisionInPlace directions) {
         this.couter--;
         for (Map.Entry<Maze.WallDirection, Integer> direction : directions.getDirections().entrySet()) {
-            this.directionMap.put(direction.getKey(), this.directionMap.getOrDefault(direction.getKey(), 0) + direction.getValue());
+            this.otherAgentsDirections.put(direction.getKey(), this.otherAgentsDirections.getOrDefault(direction.getKey(), 0) + direction.getValue());
         }
         if (this.couter == 0) {
             superSender.tell(new Object(), superSender);
@@ -127,7 +155,7 @@ public class MazeAgent extends AbstractActor {
         if (this.previousTurns.containsKey(place)) {
             Map<Maze.WallDirection, Integer> wallDirections = this.previousTurns.get(this.currentPosition);
             Map<Maze.WallDirection, Integer> copyOfWallDirections = new HashMap<>();
-            for(Map.Entry< Maze.WallDirection, Integer> entry : wallDirections.entrySet()) {
+            for (Map.Entry<Maze.WallDirection, Integer> entry : wallDirections.entrySet()) {
                 copyOfWallDirections.put(entry.getKey(), entry.getValue().intValue());
             }
             getSender().tell(new ReturnDecisionInPlace(copyOfWallDirections), getSelf());
@@ -136,7 +164,7 @@ public class MazeAgent extends AbstractActor {
     }
 
     private void prepareMove() {
-        Maze.WallDirection directions[] = getDirectionsInOrder();
+        Maze.WallDirection directions[] = getDirections();
 
         directions = Arrays.stream(directions).filter(this::moveValid).toArray(Maze.WallDirection[]::new);
         if (directions.length == 0) {
@@ -154,7 +182,6 @@ public class MazeAgent extends AbstractActor {
         }
 
         Arrays.sort(directions, (a, b) -> directionsToScores.get(b) - directionsToScores.get(a));
-
 
 
         this.nextStep = getNew(directions[0]);
@@ -212,30 +239,19 @@ public class MazeAgent extends AbstractActor {
             return;
         }
         this.superSender = this.getSender();
-        this.directionMap.clear();
-        this.directionMap.put(Maze.WallDirection.N, 0);
-        this.directionMap.put(Maze.WallDirection.S, 0);
-        this.directionMap.put(Maze.WallDirection.W, 0);
-        this.directionMap.put(Maze.WallDirection.E, 0);
-        this.directionMap.put(Maze.WallDirection.X, 0);
+        this.otherAgentsDirections.clear();
+        this.otherAgentsDirections.put(Maze.WallDirection.N, 0);
+        this.otherAgentsDirections.put(Maze.WallDirection.S, 0);
+        this.otherAgentsDirections.put(Maze.WallDirection.W, 0);
+        this.otherAgentsDirections.put(Maze.WallDirection.E, 0);
+        this.otherAgentsDirections.put(Maze.WallDirection.X, 0);
         this.couter = this.actors.size() - 1;
         askForDecisionsInCurrentPlace();
     }
 
-    private Maze.WallDirection[] getDirectionsInOrder() {
+    private Maze.WallDirection[] getDirections() {
         Maze.WallDirection directions[] = {Maze.WallDirection.N, Maze.WallDirection.S, Maze.WallDirection.W, Maze.WallDirection.E};
-        boolean found = false;
-        for (Map.Entry<Maze.WallDirection, Integer> entry : this.directionMap.entrySet()) {
-            if (entry.getValue() != 0) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            Collections.shuffle(Arrays.asList(directions));
-            return directions;
-        }
-        Arrays.sort(directions, (a, b) -> directionMap.getOrDefault(b, 0) - directionMap.getOrDefault(a, 0));
+        Collections.shuffle(Arrays.asList(directions));
         return directions;
     }
 
@@ -253,11 +269,9 @@ public class MazeAgent extends AbstractActor {
         Point newPoint = getNew(direction);
         if (this.previousTurns.containsKey(this.currentPosition)) {
             Map<Maze.WallDirection, Integer> wallDirections = this.previousTurns.get(this.currentPosition);
-            if (wallDirections.containsKey(direction)) {
-                score -= wallDirections.get(direction);
-            }
+            score -= wallDirections.getOrDefault(direction, 0);
         }
-        score -= this.directionMap.getOrDefault(direction, 0);
+        score -= 10 * this.otherAgentsDirections.getOrDefault(direction, 0);
         //score += ThreadLocalRandom.current().nextInt(0, 50);
         score += computeDistanceFromStart(newPoint);
         return score;
