@@ -63,6 +63,6 @@ public class MazePanel extends JPanel {
 
 
         g.setColor(Color.BLUE);
-        g.fillRect(maze.getFinish().getX() * cellSize + 2, maze.getFinish().getY() * cellSize + 2, cellSize - 4, cellSize - 4);
+        g.fillRect(maze.getFinish().getX() * cellSize + 2, maze.getFinish().getY() * cellSize + 2, cellSize - 1, cellSize - 1);
     }
 }

@@ -10,7 +10,6 @@ public interface Maze {
             }
             return 1 << this.ordinal();
         }
-
     }
 
     public boolean isWallAt(Point point, WallDirection direction);
