@@ -79,12 +79,13 @@ public class MazeAgent extends AbstractActor {
         if (state == State.FINISHED) {
             return;
         }
-
+        /*
         for (int j = 0; j < this.maze.getWidth(); j++) {
             for (int k = 0; k < this.maze.getHeight(); k++) {
                 this.visited[j][k] = Boolean.FALSE;
             }
         }
+        */
         Stack<Point> wholeBestPath = mf.getPath();
         List<Point> myPathToBestPath = new ArrayList<>();
 
@@ -269,6 +270,10 @@ public class MazeAgent extends AbstractActor {
     }
 
     private void askForDecisionsInCurrentPlace() {
+        if (actors.size() == 1) {
+            this.getSender().tell(new Object(), this.getSender());
+            return;
+        }
         for (ActorRef actor : actors) {
             if (actor.equals(getSelf())) {
                 continue;
