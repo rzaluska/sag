@@ -96,7 +96,7 @@ public class RecursiveBacktracking implements MazeGenerator {
     private void addLoops(MazeStructure mazeStructure) {
         Random generator = new Random();
         WallDirection directions[] = {N, S, W, E};
-        int numberOfFields = (int) (0.4 * mazeStructure.getHeight() * mazeStructure.getWidth());
+        int numberOfFields = (int) (0.7 * mazeStructure.getHeight() * mazeStructure.getWidth());
         for (int i = 0; i < numberOfFields; i++) {
             int x = generator.nextInt(mazeStructure.getWidth());
             int y = generator.nextInt(mazeStructure.getHeight());

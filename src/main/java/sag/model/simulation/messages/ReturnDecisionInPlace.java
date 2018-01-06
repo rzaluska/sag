@@ -2,16 +2,16 @@ package sag.model.simulation.messages;
 
 import sag.model.maze.Maze;
 
-import java.util.List;
+import java.util.Map;
 
 public class ReturnDecisionInPlace {
-    public List<Maze.WallDirection> getDirections() {
+    public Map<Maze.WallDirection, Integer> getDirections() {
         return directions;
     }
 
-    private final List<Maze.WallDirection> directions;
+    private final Map<Maze.WallDirection, Integer> directions;
 
-    public ReturnDecisionInPlace(List<Maze.WallDirection> directions) {
+    public ReturnDecisionInPlace(Map<Maze.WallDirection, Integer> directions) {
         this.directions = directions;
     }
 

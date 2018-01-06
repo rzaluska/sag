@@ -35,7 +35,7 @@ public class AkkaAgentsSimulation implements Simulation {
         this.numberOfAgents = numberOfAgents;
 
         for (int i = 0; i < numberOfAgents; i++) {
-            Point position = new Point(0, 0);
+            Point position = new Point(this.maze.getWidth() - 1, this.maze.getHeight() - 1);
             this.agentsPositions.add(position);
             ActorRef actor = this.actorSystem.actorOf(MazeAgent.props(position, maze, this.actors), Integer.toString(i));
             this.actors.add(actor);
