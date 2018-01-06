@@ -49,12 +49,12 @@ public class MazePanel extends JPanel {
                     if (path[i][j]) {
                         int cellx = i * cellSize;
                         int celly = j * cellSize;
-                        g.fillRect(cellx + 2, celly + 2, cellSize - 1, cellSize - 1);
+                        g.fillRect(cellx + 2, celly + 2, cellSize - 2, cellSize - 2);
                     }
                 }
             }
         }
-        g.setColor(Color.GREEN);
+        g.setColor(Color.RED);
         for (Point point : this.simulation.getAgentsPositions()) {
             int cellx = point.getX() * cellSize;
             int celly = point.getY() * cellSize;
