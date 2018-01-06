@@ -150,16 +150,28 @@ public class View {
                     emptyMazeValue = emptyMaze.isSelected();
                     cellSizeValue = Integer.parseInt(cellSize.getText());
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame, "Złe wartości ustawień", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Podaj same liczby", "Błąd", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
+                if(mazeXValue < 0 || mazeYValue < 0) {
+                    JOptionPane.showMessageDialog(frame, "Niepoprawny rozmiar labiryntu", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 if(exitXValue < 0 || exitXValue > mazeXValue || exitYValue < 0 || exitYValue > mazeYValue) {
-                    JOptionPane.showMessageDialog(frame, "Zły punkt wyjścia z labiryntu", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Niepoprawny punkt wyjścia z labiryntu", "Błąd", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 if(startXValue < 0 || startXValue > mazeXValue || startYValue < 0 || startYValue > mazeYValue) {
-                    JOptionPane.showMessageDialog(frame, "Zły punkt startu agentów", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Niepoprawny punkt startu agentów", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if(agentsCountValue < 2) {
+                    JOptionPane.showMessageDialog(frame, "Niepoprawna ilość agentów", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if(cellSizeValue < 1) {
+                    JOptionPane.showMessageDialog(frame, "Niepoprawny rozmiar komórki", "Błąd", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -277,7 +289,16 @@ public class View {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(toggleButton.getText().equals("WZNÓW")) {
-                    currentTimerSim = new TimerSim(getSimulation(), Integer.parseInt(stepDuration.getText()));
+                    int period;
+                    try {
+                        period = Integer.parseInt(stepDuration.getText());
+                        if(period < 1)
+                            throw new Exception();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(frame, "Niepoprawny czas kroku symulacji", "Błąd", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    currentTimerSim = new TimerSim(getSimulation(), period);
                     toggleButton.setText("WSTRZYMAJ");
                     stepDuration.setEnabled(false);
                     stepButton.setEnabled(false);
