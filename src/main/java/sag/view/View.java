@@ -42,10 +42,10 @@ public class View {
     private void createAndShowGUI() {
         JFrame f = new JFrame("Akka Maze");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //RecursiveBacktracking recursiveBacktracking = new RecursiveBacktracking();
-        //Maze maze = recursiveBacktracking.generate(100, 100, new Point(99, 99));
-        EmptyMazeGenerator emptyMazeGenerator= new EmptyMazeGenerator();
-        Maze maze = emptyMazeGenerator.generate(100, 100, new Point(99, 99));
+        RecursiveBacktracking recursiveBacktracking = new RecursiveBacktracking();
+        Maze maze = recursiveBacktracking.generate(100, 100, new Point(99, 99));
+        //EmptyMazeGenerator emptyMazeGenerator= new EmptyMazeGenerator();
+        //Maze maze = emptyMazeGenerator.generate(100, 100, new Point(99, 99));
         this.simulation = new AkkaAgentsSimulation();
         this.simulation.init(100, new Point(0, 0), maze);
         this.mazePanel = new MazePanel(simulation, 10);
