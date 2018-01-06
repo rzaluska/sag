@@ -10,6 +10,8 @@ import sag.model.simulation.messages.*;
 import java.util.*;
 
 public class MazeAgent extends AbstractActor {
+    private final Boolean[][] visited;
+
     private enum State {
         IN_MAZE,
         ON_BEST_PATH,
@@ -28,17 +30,19 @@ public class MazeAgent extends AbstractActor {
     private ActorRef superSender;
     private Stack<Point> bestPath;
     private Stack<Point> pathToBest;
+    private Point startPoint;
 
-    static public Props props(Point startPoint, Maze maze, List<ActorRef> actors) {
-        return Props.create(MazeAgent.class, () -> new MazeAgent(startPoint, maze, actors));
+    static public Props props(Point startPoint, Maze maze, List<ActorRef> actors, Boolean[][] visited) {
+        return Props.create(MazeAgent.class, () -> new MazeAgent(startPoint, maze, actors, visited));
     }
 
     private Point currentPosition;
     private List<Point> path;
 
-    private MazeAgent(Point startPoint, Maze maze, List<ActorRef> actors) {
+    private MazeAgent(Point startPoint, Maze maze, List<ActorRef> actors, Boolean[][] visited) {
         this.actors = actors;
         this.currentPosition = startPoint;
+        this.startPoint = startPoint;
         this.maze = maze;
         this.previousPoints = new Stack<>();
         this.previousTurns = new HashMap<>();
@@ -46,6 +50,7 @@ public class MazeAgent extends AbstractActor {
         this.otherAgentsDirections = new HashMap<>();
         this.couter = 0;
         this.state = State.IN_MAZE;
+        this.visited = visited;
     }
 
     @Override
@@ -204,6 +209,7 @@ public class MazeAgent extends AbstractActor {
             this.nextStep = this.bestPath.pop();
             this.currentPosition.setX(this.nextStep.getX());
             this.currentPosition.setY(this.nextStep.getY());
+            this.visited[this.currentPosition.getX()][this.currentPosition.getY()] = true;
             if (this.currentPosition.equals(this.maze.getFinish())) {
                 this.state = State.FINISHED;
                 return;
@@ -215,6 +221,7 @@ public class MazeAgent extends AbstractActor {
         this.previousPoints.push(new Point(this.currentPosition));
         this.currentPosition.setX(this.nextStep.getX());
         this.currentPosition.setY(this.nextStep.getY());
+        this.visited[this.currentPosition.getX()][this.currentPosition.getY()] = true;
         if (this.currentPosition.equals(this.maze.getFinish())) {
             this.state = State.FINISHED;
             for (ActorRef actor : actors) {
@@ -267,6 +274,9 @@ public class MazeAgent extends AbstractActor {
     private int getMoveScore(Maze.WallDirection direction) {
         int score = 0;
         Point newPoint = getNew(direction);
+        if (!this.visited[newPoint.getX()][newPoint.getY()]) {
+            score += 100;
+        }
         if (this.previousTurns.containsKey(this.currentPosition)) {
             Map<Maze.WallDirection, Integer> wallDirections = this.previousTurns.get(this.currentPosition);
             score -= wallDirections.getOrDefault(direction, 0);
@@ -278,11 +288,11 @@ public class MazeAgent extends AbstractActor {
     }
 
     private int computeDistanceFromStart(Point newPoint) {
-        int x = this.maze.getWidth() - 1;
-        int y = this.maze.getHeight() - 1;
+        int x = this.startPoint.getX();
+        int y = this.startPoint.getY();
         x -= newPoint.getX();
         y -= newPoint.getY();
-        return x + y;
+        return Math.abs(x) + Math.abs(y);
     }
 
     private boolean moveValid(Maze.WallDirection direction) {

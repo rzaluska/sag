@@ -86,8 +86,8 @@ public class RecursiveBacktracking implements MazeGenerator {
     }
 
     @Override
-    public Maze generate(int width, int height) {
-        MazeStructure mazeStructure = new ArrayMaze(width, height, new Point(0, 0));
+    public Maze generate(int width, int height, Point finish) {
+        MazeStructure mazeStructure = new ArrayMaze(width, height, finish);
         carveFrom(mazeStructure, new Point(0, 0));
         addLoops(mazeStructure);
         return mazeStructure;

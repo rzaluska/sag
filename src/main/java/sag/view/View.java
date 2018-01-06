@@ -1,6 +1,7 @@
 package sag.view;
 
 import sag.model.maze.Maze;
+import sag.model.maze.Point;
 import sag.model.maze.generators.RecursiveBacktracking;
 import sag.model.simulation.AkkaAgentsSimulation;
 import sag.model.simulation.Simulation;
@@ -41,9 +42,9 @@ public class View {
         JFrame f = new JFrame("Akka Maze");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         RecursiveBacktracking recursiveBacktracking = new RecursiveBacktracking();
-        Maze maze = recursiveBacktracking.generate(100, 100);
+        Maze maze = recursiveBacktracking.generate(100, 100, new Point(99, 0));
         this.simulation = new AkkaAgentsSimulation();
-        this.simulation.init(100, maze);
+        this.simulation.init(2, new Point(49, 49), maze);
         this.mazePanel = new MazePanel(simulation, 10);
         JScrollPane jScrollPane = new JScrollPane(this.mazePanel);
         jScrollPane.setSize(new Dimension(100, 100));

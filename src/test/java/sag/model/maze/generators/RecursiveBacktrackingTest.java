@@ -12,7 +12,7 @@ class RecursiveBacktrackingTest {
         RecursiveBacktracking recursiveBacktracking = new RecursiveBacktracking();
         int width = 100;
         int height = 100;
-        Maze maze = recursiveBacktracking.generate(width,height);
+        Maze maze = recursiveBacktracking.generate(width,height, new Point(0,0));
 
         for (int i = 0; i < width; i++) {
             System.out.print(" _");
