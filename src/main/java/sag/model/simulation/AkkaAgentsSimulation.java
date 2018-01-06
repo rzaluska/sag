@@ -22,7 +22,6 @@ public class AkkaAgentsSimulation implements Simulation {
     private List<ActorRef> actors;
     private List<Point> agentsPositions;
     private Maze maze;
-    private int numberOfAgents;
     private List<Boolean[][]> visitedTable;
 
     public AkkaAgentsSimulation() {
@@ -34,7 +33,6 @@ public class AkkaAgentsSimulation implements Simulation {
     public void init(int numberOfAgents, Point start, Maze maze) {
         this.maze = maze;
         this.actorSystem = ActorSystem.create("sag");
-        this.numberOfAgents = numberOfAgents;
         this.visitedTable = new ArrayList<>();
 
         for (int i = 0; i < numberOfAgents; i++) {
@@ -55,7 +53,10 @@ public class AkkaAgentsSimulation implements Simulation {
     @Override
     public void stop() {
         this.actorSystem.terminate();
-
+        this.maze = null;
+        this.actors.clear();
+        this.agentsPositions.clear();
+        this.visitedTable.clear();
     }
 
     @Override
